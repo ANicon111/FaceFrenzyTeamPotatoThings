@@ -12,37 +12,39 @@ This interactive game encourages participation by detecting the number of faces 
 
 ## 🎮 User Stories & Testable Scenarios
 
-### ✅ Start Game via Board Button
+### ✅ As a user I want the game to start when I press the button on the board so that I can play the game
+
 - **Given** the system is powered on and idle  
 - **When** the "Start" button is pressed  
 - **Then** the game begins, the timer starts, and feedback is given via LEDs or the UI
 
-### 🧑‍🤝‍🧑 Recognize All Faces Fairly
+### 🧑‍🤝‍🧑 As a user I want the game to recognize all faces in the photo so that the game is fair
+
 - **Given** a photo is taken  
 - **When** N human faces are visible  
 - **Then** all N faces are accurately counted and logged/displayed
 
-### 💡 Timer Feedback
+### 💡 As a user I want the game to give me a visible feedback through LED's on the board or user interface so that I know that the timer has started 
 - **Given** the game starts  
 - **When** the timer begins  
 - **Then** the LED or UI updates to show the game is active
 
-### ⏸ Pause Functionality
+### ⏸ As a user I want the game to have a pause option so that I can pause the game if anyone gets injured or goes to the bathroom
 - **Given** the game is running  
 - **When** the "Pause" button is pressed  
 - **Then** the game pauses and visual feedback is given
 
-### 🔢 Input Max Face Count
+### 🔢 As a user I want to input the number of max face count via buttons so that the game knows how many persons will be maximum in the picture
 - **Given** the game is in setup mode  
 - **When** the "+" or "–" buttons are used  
 - **Then** the max face count is updated and used for game validation
 
-### 🏆 Score Visibility
+### 🏆 As a user I want to see the score so that I know how bad I am at the game
 - **Given** a round is completed  
 - **When** scoring is calculated  
 - **Then** the score is displayed until reset or next round
 
-### 📸 Save After Photo
+### 📸 As a user I want to be able to save the after photo so that I can keep the good memories 
 - **Given** a round has ended  
 - **When** the photo is taken  
 - **Then** the image is saved locally or to the cloud for future access
