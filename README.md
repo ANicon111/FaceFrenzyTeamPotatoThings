@@ -1,89 +1,114 @@
-#Module Descriptions:
+# Face Recognition Game on PYNQ-Z
 
-Face recognition - This system uses the Python library "face_recognition" to count the amount of the faces in the picture taken before using the camera on the PYNQ-Z.
+This project implements a face recognition game using the **PYNQ-Z** board. Players compete by presenting a specific number of faces in front of a camera. The system counts the number of faces in the captured photo using computer vision, provides feedback, tracks scores, and allows interaction through buttons, LEDs, and a web interface.
 
-IO Handler - This module takes care of the buttons and LED functionality, meaning whenever the players show the correct amount of faces in the picture the LED will lit up green and on the contrary it will lit red, meaning that the players used one of their three strikes. 
+---
 
-Game Management System - This module takes care of the scoring system. Players will gain a point whenever they show correct amount of the faces in the picture, however they will lose one of the three strikes whenever the amount of faces in the picture will not indicate the same amount as was shown before. 
+## 🔍 Overview
 
-User Interface - The users will be given a display element with the PYNQ board where they can see the results and the score.
+This interactive game encourages participation by detecting the number of faces in a photo and providing immediate feedback via LEDs and a user interface. The system uses the **`face_recognition`** Python library and **OpenCV** to perform facial detection, and runs on a resource-constrained embedded system (PYNQ-Z).
 
-HTTP Server - The admin can view the gameplay, where they can see the process of the game. They can see current score and the results of the face recognition module. 
+---
 
-#User Stories:
+## 🎮 User Stories & Testable Scenarios
 
-As a user I want the game to start when I press the button on the board 
-so that I can play the game
+### ✅ Start Game via Board Button
+- **Given** the system is powered on and idle  
+- **When** the "Start" button is pressed  
+- **Then** the game begins, the timer starts, and feedback is given via LEDs or the UI
 
-1. Given the system is powered on
-2. And the game is idle
-3. When the user presses the "Start" button on the board
-4. Then the game should start
-5. And the timer should begin
-6. And the user should receive a visible confirmation (e.g. LED or UI change) 
+### 🧑‍🤝‍🧑 Recognize All Faces Fairly
+- **Given** a photo is taken  
+- **When** N human faces are visible  
+- **Then** all N faces are accurately counted and logged/displayed
 
-As a user I want the game to recognize all faces in the photo 
-so that the game is fair
+### 💡 Timer Feedback
+- **Given** the game starts  
+- **When** the timer begins  
+- **Then** the LED or UI updates to show the game is active
 
-1. Given the game has taken a photo
-2. When the photo includes N clearly visible human faces
-3. Then the face recognition algorithm should detect and count all N faces
-4. And display or log the correct number of faces
+### ⏸ Pause Functionality
+- **Given** the game is running  
+- **When** the "Pause" button is pressed  
+- **Then** the game pauses and visual feedback is given
 
-As a user I want the game to give me a visible feedback through LED's on the board or user interface 
-so that I know that the timer has started 
+### 🔢 Input Max Face Count
+- **Given** the game is in setup mode  
+- **When** the "+" or "–" buttons are used  
+- **Then** the max face count is updated and used for game validation
 
-1. Given the game has just started after pressing the button
-2. When the timer starts
-3. Then the system should activate a visible LED or update the UI to indicate that the timer has started
+### 🏆 Score Visibility
+- **Given** a round is completed  
+- **When** scoring is calculated  
+- **Then** the score is displayed until reset or next round
 
-As a user I want the game to have a pause option 
-so that I can pause the game if anyone gets injured or goes to the bathroom
+### 📸 Save After Photo
+- **Given** a round has ended  
+- **When** the photo is taken  
+- **Then** the image is saved locally or to the cloud for future access
 
-1. Given the game is running
-2. When the user presses the "Pause" button
-3. Then the timer and all game processes should pause
-4. And the UI or LEDs should indicate that the game is paused
+---
 
-As a user I want to input the number of max face count via buttons 
-so that the game knows how many persons will be maximum in the picture
+## 🧩 Module Descriptions
 
-1. Given the game is in setup mode
-2. When the user presses the "+" or "–" buttons to change the max face count
-3. Then the displayed max face count should update accordingly
-4. And the game should use this number for validating captured photos
+### 🎭 Face Recognition
+Uses the `face_recognition` Python library to count the number of visible human faces in a captured photo.
 
-As a user I want to see the score 
-so that I know how bad I am at the game
+### 🧠 Game Management System
+Handles score logic. Players gain a point for correct face count and lose one of three strikes for an incorrect count.
 
-1. Given the game round is completed
-2. When the scoring logic has been calculated
-3. Then the score should be displayed on the user interface
-4. And be visible to the player until the game is reset or a new round begins
+### 🧰 IO Handler
+Manages hardware input and output:
+- **Buttons** for starting/pausing the game or setting face count
+- **LEDs** to show success (green) or failure (red)
 
-As a user I want to be able to save the after photo 
-so that I can keep the good memories 
+### 💻 User Interface
+Displays score and game state directly on the PYNQ board screen.
 
-1. Given a photo has been taken at the end of the game
-2. When the game round is completed
-3. Then the photo should be saved to local or cloud storage
-4. And should be accessible to the user later (via UI, file system, or app)
+### 🌐 HTTP Server
+Provides real-time remote monitoring for admins:
+- View current score and face recognition results
+- Observe live game state
 
-#Constraints, Risks and Assumptions:
+---
 
-The main constraints of this project will be from the hardware sphere. The limited resources of the PYNQ board can be an issue, so working on the optimization of the system will be critical, with performance being given a high priority.
+## ⚠️ Constraints, Risks & Assumptions
 
+### 🚧 Constraints
+- Limited hardware resources of the PYNQ-Z board
+- Performance optimization is essential
 
-Risks:
-- USB Camera -> Its reliability and performance will directly impact the performance of the system
-- Team’s motivation -> Poor motivation will affect the team’s productivity and teamwork, slowing down the development of the project.
-- Web Server Performance -> A poor web server performance will affect the monitoring of the system by the admins
+### ⚠️ Risks
+- **USB Camera Reliability**: Affects image capture accuracy and timing
+- **Team Motivation**: Impacts development pace
+- **Web Server Load**: Might bottleneck real-time monitoring
 
+### ✅ Assumptions
+- Compatibility with OpenCV and other libraries
+- Fully functional and reliable PYNQ board and peripherals
 
-Assumptions:
-- Library Compatibility -> The team assumes that the libraries used for the system like OpenCV will be compatible with the PYNQ board.
-- Reliability of the hardware -> The team assumes that the PYNQ board and I/O devices are fully functional and reliable.
+---
 
+## 🔍 Why OpenCV?
 
-https://github.com/suniljs6/Counting-number-of-faces-in-a-picture-using-python-opencv
 ![Reason why we chose OpenCV](opencv.png "Reason why we chose OpenCV")
+
+We selected OpenCV due to its robust performance, broad community support, and seamless integration with the `face_recognition` library on embedded systems like PYNQ-Z.
+
+---
+
+## 📚 References
+
+- [`face_recognition` Python Library](https://github.com/ageitgey/face_recognition)
+- [OpenCV GitHub Repository](https://github.com/opencv/opencv)
+- [Example Face Detection Project](https://github.com/suniljs6/Counting-number-of-faces-in-a-picture-using-python-opencv)
+
+---
+
+## 🛠️ Built With
+
+- Python
+- OpenCV
+- face_recognition
+- PYNQ Framework
+- HTML/CSS (for Web UI)
