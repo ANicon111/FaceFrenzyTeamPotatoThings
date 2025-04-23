@@ -1,0 +1,45 @@
+@startuml FaceFrenzy_Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(player, "Player", "Plays the game physically in front of camera")
+Person(sysAdmin, "System admin", "View data")
+System_Boundary(ffSystem, "Face Frenzy Game") {
+    Container(buttons, "Button Interface", "Python", "Takes input from player")
+    Container(leds, "LED handler", "Python", "Manages leds")
+    Container(pythonApp, "Game Logic", "Python", "Handles gameplay and scoring")
+    Container(faceDetection, "Face Detection Module", "Python", "Face recognition using OpenCV2")
+    Container(camera, "Video Input", "Takes picture when tasked")
+    
+}
+System_Boundary(webServerSystem, "Web Server") {
+    Container(webServer, "Web Interface", "Python/Flask", "Displays score or game UI over local network")
+    
+    Container(data, "Data Storage", "Python", "Stores data about game states")
+}
+
+System_Ext(cameraE, "Camera", "Takes pictures when required")
+System_Ext(display, "LCD Display", "Displays game state")
+
+
+Rel(pythonApp, leds, "Gives data about score and remaining time")
+Rel(leds, player, "Player sees the visual clues about state of game")
+Rel(player, buttons, "Player starts, pauses and stops the game")
+Rel(pythonApp, camera, "Python app tells camera when to take picture")
+Rel(camera, faceDetection, "Sends picture to analyze")
+Rel(faceDetection, pythonApp, "Sends number of faces detected")
+Rel(pythonApp, webServer, "Updates UI")
+Rel(buttons, pythonApp, "Sends game parameters and start instructions")
+
+Rel(webServer, data, "Sends data to store")
+Rel(data, webServer, "Sends data to display")
+Rel(sysAdmin, webServer, "Opens web server")
+
+Rel(webServer, sysAdmin, "Web server displays status")
+
+Rel(camera, cameraE, "Requests picture")
+Rel(cameraE, camera, "Returns picture")
+
+Rel(pythonApp, display, "Sends data to display")
+
+Rel(display, player, "Player can view data")
+@enduml

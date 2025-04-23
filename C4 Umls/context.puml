@@ -1,0 +1,31 @@
+@startuml FaceFrenzy_Context
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(player, "Player", "Plays the Face Frenzy game in front of the PYNQ board")
+Person(sysAdmin, "System Admin", "Views data on web server")
+
+System(faceFrenzy, "Face Frenzy Game", "Real-time face detection game running on a PYNQ board")
+System(web, "Web Server", "Displays and holds data about game state")
+
+System_Ext(camera, "Camera", "Takes pictures when required")
+System_Ext(display, "LCD Display", "Displays game state")
+
+
+Rel(player, faceFrenzy, "Plays using")
+
+Rel(faceFrenzy, camera, "Requests picture")
+Rel(camera, faceFrenzy, "Returns picture")
+
+Rel(faceFrenzy, display, "Sends data to display")
+
+Rel(faceFrenzy, web, "Sends gamestate data to web server")
+
+Rel(sysAdmin, web, "Requests to view data")
+Rel(web, sysAdmin, "Returns data back")
+
+' Note about deployment, shown as a note
+note right of faceFrenzy
+  Deployed on a PYNQ board (Python)
+end note
+
+@enduml

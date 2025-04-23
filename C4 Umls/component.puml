@@ -1,0 +1,25 @@
+@startuml FaceFrenzy_Component
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Person(player, "Player", "Plays in front of the camera")
+
+System_Boundary(faceFrenzy, "Face Frenzy Game") {
+
+  Component(gameLogic, "Game Logic", "Python", "Manages gameplay, reacts to face events, updates score")
+
+  Component(faceDetection, "Face Detection Module", "FPGA Overlay", "Detects faces using accelerated image processing")
+
+  Component(cameraInput, "Camera Interface", "Python/OpenCV", "Streams frames from camera to detection module")
+
+  Component(scoreStore, "Score Storage", "CSV/SQLite", "Stores scores and progress locally")
+
+  Component(localUI, "Local Web UI / HDMI Display", "Flask or Direct Output", "Shows current score or feedback")
+}
+
+Rel(player, cameraInput, "Stands in front of", "Video stream")
+Rel(cameraInput, faceDetection, "Sends video frames", "AXI / function call")
+Rel(faceDetection, gameLogic, "Sends face detection events")
+Rel(gameLogic, scoreStore, "Reads/Writes score data")
+Rel(gameLogic, localUI, "Updates UI / score display")
+
+@enduml
