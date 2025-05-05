@@ -1,0 +1,28 @@
+@startuml FaceFrenzy_State_Machine
+' I refuse to use dependencies, when there is a base syntax available
+
+hide empty description
+state "Load Resources" as lr
+state "Wait For Player" as wfp
+state "Countdown" as c
+state "Take Photo" as tp
+state "Count Faces" as cf
+state "Add To Score" as ats
+state "Round Checker" as rc
+state "Count Faces" as cf
+state "Game Over" as go
+
+[*]-->lr
+lr->wfp
+wfp->c
+c->tp
+tp->cf
+cf-->ats: Face Count Correct
+cf->rc: Face Count Wrong
+ats-->rc
+rc->c: Not Last Round
+rc-->go: Last Round
+go->wfp: New Game
+go-->[*]
+
+@enduml
