@@ -3,30 +3,39 @@ import cv2
 import os
 import random
 import time
+import signal
+import sys
 
 # ___pynq board display output (untested)___
-# from pynq.overlays.base import BaseOverlay
-# from pynq.lib.video import *
+from pynq.overlays.base import BaseOverlay
+from pynq.lib.video import *
 
-# frame_out_w = 1920
-# frame_out_h = 1080
-# base = BaseOverlay("base.bit")
-# Mode = VideoMode(640, 480, 24)
-# hdmi_out = base.video.hdmi_out
-# hdmi_out.configure(Mode, PIXEL_BGR)
-# hdmi_out.start()
-# outframe = hdmi_out.newframe()
+frame_out_w = 1920
+frame_out_h = 1080
+base = BaseOverlay("base.bit")
+Mode = VideoMode(640, 480, 24)
+hdmi_out = base.video.hdmi_out
+hdmi_out.configure(Mode, PIXEL_BGR)
+hdmi_out.start()
+outframe = hdmi_out.newframe()
 
 
-# def show_frame(frame):
-#     outframe[0:480, 0:640, :] = frame[0:480, 0:640, :]
-#     hdmi_out.writoutframe
+def show_frame(frame):
+    outframe[0:480, 0:640, :] = frame[0:480, 0:640, :]
+    print("trying to output frame")
+    hdmi_out.writeframe(outframe)
 
 
 # ___matplotlib display output ✔️___
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
-plt.ion()
+# plt.ion()
+
+
+# def show_frame(frame):
+#     plt.imshow(frame[:, :, [2, 1, 0]])
+#     plt.pause(1)
+#     plt.show()
 
 
 def out_html(
@@ -49,19 +58,13 @@ def out_html(
 
     <body>
         <h1>Right: {right}, Wrong: {wrong}, Game Over: {game_over}, Player Count: {player_count}, Face Count: {face_count}</h1>
-        <img src="{{{{ url_for('static', filename='frame.png') }}}}" alt="Current frame" width="400">
-        <img src="{{{{ url_for('static', filename='after_process.png') }}}}" alt="Last processed frame" width="400">
+        <img src="/static/frame.png" alt="Current frame" width="400">
+        <img src="/static/after_process.png" alt="Last processed frame" width="400">
     </body>
 
 </html>            
 """
         )
-
-
-def show_frame(frame):
-    plt.imshow(frame[:, :, [2, 1, 0]])
-    plt.pause(1)
-    plt.show()
 
 
 # camera (input) configuration
@@ -81,97 +84,128 @@ def read_video():
 
 
 os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
-player_count = 3
-try:
-    # TODO player count with button
-    player_count = int(os.environ["PLAYER_COUNT"])
-except:
-    pass
 
 
-time_val = 10
-right = 0
-wrong = 0
-while wrong < 2:
-    if time_val > 2:
-        time_val -= 1
-    face_count = random.randint(0, player_count)
-    out_html(right, wrong, False, player_count, face_count)
-    for i in range(time_val, 0, -1):
-        status, frame = read_video()
-        # plt.pause(1)
-        cv2.putText(
-            frame,
-            f"FACE COUNT:{face_count}, COUNTDOWN: {i}",
-            (20, 25),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 0, 0),
-            2,
-        )
-        # plt.imshow(frame[:, :, [2, 1, 0]])
-        show_frame(frame)
-        # plt.show()
+def signal_handler(sig, frame):
+    videoIn.release()
+    global hdmi_out
+    hdmi_out.stop()
+    del hdmi_out
+    sys.exit(0)
 
+
+signal.signal(signal.SIGINT, signal_handler)
+
+player_count = 1
+while True:
     status, frame = read_video()
-    show_frame(frame)
-    ### Step 4: Now use matplotlib to show image inside notebook
-
-    # Output webcam image as JPEG
-
-    ### Step 5: Apply the face detection to the input
-
-    frame = frame
-
-    face_cascade = cv2.CascadeClassifier("./data/haarcascade_frontalface_default.xml")
-
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
-    for x, y, w, h in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-    success = len(faces) == face_count
-    if success:
-        right += 1
-    else:
-        wrong += 1
-
     cv2.putText(
         frame,
-        f"Faces Captured:{len(faces)}, SUCCESS:{success}",
+        f"Press button to select player number",
         (20, 25),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
         (0, 0, 0),
         2,
     )
+    show_frame(frame)
+
+    while True:
+        if base.buttons[0].read() == 1:
+            player_count = 1
+            break
+        if base.buttons[1].read() == 1:
+            player_count = 2
+            break
+        if base.buttons[2].read() == 1:
+            player_count = 3
+            break
+        if base.buttons[3].read() == 1:
+            player_count = 4
+            break
+
+    time_val = 10
+    right = 0
+    wrong = 0
+    while wrong < 2:
+        if time_val > 2:
+            time_val -= 1
+        face_count = random.randint(0, player_count)
+        out_html(right, wrong, False, player_count, face_count)
+        for i in range(time_val, 0, -1):
+            status, frame = read_video()
+            # plt.pause(1)
+            cv2.putText(
+                frame,
+                f"FACE COUNT:{face_count}, COUNTDOWN: {i}",
+                (20, 25),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 0),
+                2,
+            )
+            # plt.imshow(frame[:, :, [2, 1, 0]])
+            show_frame(frame)
+            # plt.show()
+            time.sleep(1)
+
+        status, frame = read_video()
+        show_frame(frame)
+        ### Step 4: Now use matplotlib to show image inside notebook
+
+        # Output webcam image as JPEG
+
+        ### Step 5: Apply the face detection to the input
+
+        frame = frame
+
+        face_cascade = cv2.CascadeClassifier(
+            "./data/haarcascade_frontalface_default.xml"
+        )
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+        for x, y, w, h in faces:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        success = len(faces) == face_count
+        if success:
+            right += 1
+        else:
+            wrong += 1
+
+        cv2.putText(
+            frame,
+            f"Faces Captured:{len(faces)}, SUCCESS:{success}",
+            (20, 25),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 0),
+            2,
+        )
+        cv2.putText(
+            frame,
+            f"Score:{right}, Failed:{wrong}",
+            (20, 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 0),
+            2,
+        )
+        cv2.imwrite("static/after_process.png", frame)
+        show_frame(frame)
+        time.sleep(1)
+
+    out_html(right, wrong, True, player_count, 0)
+    status, frame = read_video()
     cv2.putText(
         frame,
-        f"Score:{right}, Failed:{wrong}",
-        (20, 50),
+        f"Game over. Score:{right}",
+        (20, 25),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
         (0, 0, 0),
         2,
     )
-    cv2.imwrite("static/after_process.png", frame)
     show_frame(frame)
-
-out_html(right, wrong, True, player_count, 0)
-status, frame = read_video()
-cv2.putText(
-    frame,
-    f"Game over. Score:{right}",
-    (20, 25),
-    cv2.FONT_HERSHEY_SIMPLEX,
-    1,
-    (0, 0, 0),
-    2,
-)
-show_frame(frame)
-# TODO press button for new game
-time.sleep(10)
-
-videoIn.release()
-# hdmi_out.stop()
-# del hdmi_out
+    time.sleep(3)
